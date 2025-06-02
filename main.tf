@@ -12,11 +12,6 @@ terraform {
   required_version = ">= 1.0"
 }
 
-# Configure the Azure Active Directory Provider
-provider "azuread" {
-  # Authentication will be handled via Azure CLI, Service Principal, or Managed Identity
-  # Set environment variables: ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID
-}
 
 # Additional variables not defined in variables.tf
 variable "organization_name" {
