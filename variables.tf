@@ -31,6 +31,5 @@ variable "tier2_roles" {
     "Reports Reader",
     "Message Center Reader",
     "User Experience Success Manager"
-    // Add more low-priv roles as needed
   ]
 }
