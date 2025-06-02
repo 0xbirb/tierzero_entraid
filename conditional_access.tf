@@ -8,7 +8,7 @@ resource "azuread_conditional_access_policy" "tier0_block_non_paw" {
 
     users {
       included_groups = [
-        for key, group in azuread_group.tier_role_groups : group.object_id if startswith(key, "tier-0")
+        for key, group in local.tier_role_groups : group.object_id if startswith(key, "tier-0")
       ]
     }
 
@@ -41,7 +41,7 @@ resource "azuread_conditional_access_policy" "tier0_allow_paw_with_phish_resist"
 
     users {
       included_groups = [
-        for key, group in azuread_group.tier_role_groups : group.object_id if startswith(key, "tier-0")
+        for key, group in local.tier_role_groups : group.object_id if startswith(key, "tier-0")
       ]
     }
 
@@ -68,5 +68,5 @@ resource "azuread_conditional_access_policy" "tier0_allow_paw_with_phish_resist"
     sign_in_frequency        = var.tier_definitions["tier-0"].session_timeout_hours
     sign_in_frequency_period = "hours"
     persistent_browser_mode  = "never"
-}
+  }
 }
