@@ -49,17 +49,36 @@ resource "azuread_administrative_unit_member" "tier2_au_groups" {
 # Helper: Get Directory Role ID by Display Name
 data "azuread_directory_roles" "all" {}
 
+# Get individual roles for each tier to handle missing roles gracefully
+data "azuread_directory_role" "tier0_roles" {
+  for_each     = toset(var.tier0_roles)
+  display_name = each.value
+}
+
+data "azuread_directory_role" "tier1_roles" {
+  for_each     = toset(var.tier1_roles)
+  display_name = each.value
+}
+
+data "azuread_directory_role" "tier2_roles" {
+  for_each     = toset(var.tier2_roles)
+  display_name = each.value
+}
+
 locals {
-  # Create a map of role display names to role IDs
+  # Create a map of role display names to role IDs for debugging
   directory_roles_map = {
     for role in data.azuread_directory_roles.all.roles : role.display_name => role.object_id
   }
+  
+  # Available role names for reference
+  available_role_names = keys(local.directory_roles_map)
 }
 
 # Assign Tier-0 roles to Tier-0 groups at Tier-0 AU
 resource "azuread_directory_role_assignment" "tier0" {
   for_each    = azuread_group.tier0_role_groups
-  role_id     = local.directory_roles_map[each.key]
+  role_id     = data.azuread_directory_role.tier0_roles[each.key].object_id
   principal_object_id = each.value.id
   directory_scope_id  = "/administrativeUnits/${azuread_administrative_unit.tier0.id}"
 }
@@ -67,7 +86,7 @@ resource "azuread_directory_role_assignment" "tier0" {
 # Assign Tier-1 roles to Tier-1 groups at Tier-1 AU
 resource "azuread_directory_role_assignment" "tier1" {
   for_each    = azuread_group.tier1_role_groups
-  role_id     = local.directory_roles_map[each.key]
+  role_id     = data.azuread_directory_role.tier1_roles[each.key].object_id
   principal_object_id = each.value.id
   directory_scope_id  = "/administrativeUnits/${azuread_administrative_unit.tier1.id}"
 }
@@ -75,7 +94,7 @@ resource "azuread_directory_role_assignment" "tier1" {
 # Assign Tier-2 roles to Tier-2 groups at Tier-2 AU
 resource "azuread_directory_role_assignment" "tier2" {
   for_each    = azuread_group.tier2_role_groups
-  role_id     = local.directory_roles_map[each.key]
+  role_id     = data.azuread_directory_role.tier2_roles[each.key].object_id
   principal_object_id = each.value.id
   directory_scope_id  = "/administrativeUnits/${azuread_administrative_unit.tier2.id}"
 }

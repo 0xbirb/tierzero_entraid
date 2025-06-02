@@ -12,6 +12,29 @@ terraform {
   required_version = ">= 1.0"
 }
 
+# Configure the Azure Active Directory Provider
+provider "azuread" {
+  tenant_id     = var.tenant_id
+  client_id     = var.client_id
+  client_secret = var.client_secret
+}
+
+# Authentication variables for terraform.tfvars
+variable "tenant_id" {
+  description = "Azure AD Tenant ID"
+  type        = string
+}
+
+variable "client_id" {
+  description = "Azure AD App Registration Client ID"
+  type        = string
+}
+
+variable "client_secret" {
+  description = "Azure AD App Registration Client Secret"
+  type        = string
+  sensitive   = true
+}
 
 # Additional variables not defined in variables.tf
 variable "organization_name" {
@@ -107,4 +130,9 @@ output "tier_groups" {
     tier2 = azuread_group.tier2_role_groups
   }
   sensitive = true
+}
+
+output "available_directory_roles" {
+  description = "Available directory role names in your tenant"
+  value       = local.available_role_names
 }
