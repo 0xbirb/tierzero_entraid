@@ -67,21 +67,6 @@ locals {
     "790c1fb9-7f7d-4f88-86a1-ef1f95c05c1b" = "Message-Center-Reader"
     "74ef975b-6605-40af-a5d2-b9539d836353" = "User-Experience-Success-Manager"
   }
-
-  tier_role_groups = merge(
-    { for k, v in azuread_group.tier0_role_groups : "tier-0-${k}" => v },
-    { for k, v in azuread_group.tier1_role_groups : "tier-1-${k}" => v },
-    { for k, v in azuread_group.tier2_role_groups : "tier-2-${k}" => v }
-  )
 }
 
-# Outputs
-output "tier_groups" {
-  description = "Created Tier Groups"
-  value = {
-    tier0 = azuread_group.tier0_role_groups
-    tier1 = azuread_group.tier1_role_groups
-    tier2 = azuread_group.tier2_role_groups
-  }
-  sensitive = false
-}
+# Outputs will be added later when groups are successfully created
