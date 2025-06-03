@@ -24,7 +24,8 @@ param(
 # Auto-install required modules if missing
 $RequiredModules = @(
     'Microsoft.Graph.Authentication',
-    'Microsoft.Graph.Identity.DirectoryManagement'
+    'Microsoft.Graph.Identity.DirectoryManagement',
+    'Microsoft.Graph.Groups'
 )
 
 foreach ($Module in $RequiredModules) {
@@ -44,6 +45,7 @@ foreach ($Module in $RequiredModules) {
 # Import required modules
 Import-Module Microsoft.Graph.Authentication -Force
 Import-Module Microsoft.Graph.Identity.DirectoryManagement -Force
+Import-Module Microsoft.Graph.Groups -Force
 
 # Initialize logging
 $LogFile = "create-restricted-aus-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
@@ -61,20 +63,38 @@ function Write-Log {
 
 function Connect-ToMSGraph {
     try {
-        Write-Log "Connecting to Microsoft Graph..."
+        Write-Log "Connecting to Microsoft Graph using service principal..."
         
-        # Define required scopes for administrative unit management
-        $Scopes = @(
-            'AdministrativeUnit.ReadWrite.All',
-            'Directory.ReadWrite.All',
-            'Group.ReadWrite.All',
-            'RoleManagement.ReadWrite.Directory'
-        )
+        # Get credentials from environment variables (set by Terraform)
+        $TenantId = $env:ARM_TENANT_ID
+        $ClientId = $env:ARM_CLIENT_ID  
+        $ClientSecret = $env:ARM_CLIENT_SECRET
         
-        if ($TenantId) {
-            Connect-MgGraph -Scopes $Scopes -TenantId $TenantId -NoWelcome
+        if (-not $TenantId -or -not $ClientId -or -not $ClientSecret) {
+            Write-Log "Service principal credentials not found in environment variables. Falling back to interactive auth..." -Level "WARNING"
+            
+            # Define required scopes for interactive authentication
+            $Scopes = @(
+                'AdministrativeUnit.ReadWrite.All',
+                'Directory.ReadWrite.All',
+                'Group.ReadWrite.All',
+                'RoleManagement.ReadWrite.Directory'
+            )
+            
+            if ($TenantId) {
+                Connect-MgGraph -Scopes $Scopes -TenantId $TenantId -NoWelcome
+            } else {
+                Connect-MgGraph -Scopes $Scopes -NoWelcome
+            }
         } else {
-            Connect-MgGraph -Scopes $Scopes -NoWelcome
+            Write-Log "Using service principal authentication"
+            
+            # Convert client secret to secure string
+            $SecureClientSecret = ConvertTo-SecureString $ClientSecret -AsPlainText -Force
+            $ClientCredential = New-Object System.Management.Automation.PSCredential($ClientId, $SecureClientSecret)
+            
+            # Connect using service principal
+            Connect-MgGraph -TenantId $TenantId -ClientSecretCredential $ClientCredential -NoWelcome
         }
         
         $Context = Get-MgContext

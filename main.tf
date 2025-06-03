@@ -80,9 +80,14 @@ resource "null_resource" "create_administrative_units" {
   provisioner "local-exec" {
     command     = "pwsh -File ${path.module}/scripts/create-administrative-units.ps1"
     working_dir = path.module
+    
+    environment = {
+      ARM_TENANT_ID     = var.tenant_id
+      ARM_CLIENT_ID     = var.client_id
+      ARM_CLIENT_SECRET = var.client_secret
+    }
   }
 
-  # Trigger re-execution when groups change
   triggers = {
     tier0_groups = jsonencode([for group in azuread_group.tier0_role_groups : group.id])
     tier1_groups = jsonencode([for group in azuread_group.tier1_role_groups : group.id])
