@@ -6,7 +6,6 @@ resource "azuread_group" "tier0_role_groups" {
   description               = "Role-assignable group for ${lookup(local.role_display_names, each.value, each.value)} role"
   security_enabled          = true
   assignable_to_role        = true
-  prevent_duplicate_names   = true
   mail_enabled             = false
 }
 
@@ -18,7 +17,6 @@ resource "azuread_group" "tier1_role_groups" {
   description               = "Role-assignable group for ${lookup(local.role_display_names, each.value, each.value)} role"
   security_enabled          = true
   assignable_to_role        = true
-  prevent_duplicate_names   = true
   mail_enabled             = false
 }
 
@@ -30,6 +28,5 @@ resource "azuread_group" "tier2_role_groups" {
   description               = "Role-assignable group for ${lookup(local.role_display_names, each.value, each.value)} role"
   security_enabled          = true
   assignable_to_role        = true
-  prevent_duplicate_names   = true
   mail_enabled             = false
 }
