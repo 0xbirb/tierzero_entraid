@@ -69,4 +69,24 @@ locals {
   }
 }
 
-# Outputs will be added later when groups are successfully created
+# PowerShell Script Execution for Administrative Units
+resource "null_resource" "create_administrative_units" {
+  depends_on = [
+    azuread_group.tier0_role_groups,
+    azuread_group.tier1_role_groups,
+    azuread_group.tier2_role_groups
+  ]
+
+  provisioner "local-exec" {
+    command     = "pwsh -File ${path.module}/scripts/create-administrative-units.ps1"
+    working_dir = path.module
+  }
+
+  # Trigger re-execution when groups change
+  triggers = {
+    tier0_groups = jsonencode([for group in azuread_group.tier0_role_groups : group.id])
+    tier1_groups = jsonencode([for group in azuread_group.tier1_role_groups : group.id])
+    tier2_groups = jsonencode([for group in azuread_group.tier2_role_groups : group.id])
+    script_hash  = filemd5("${path.module}/scripts/create-administrative-units.ps1")
+  }
+}
