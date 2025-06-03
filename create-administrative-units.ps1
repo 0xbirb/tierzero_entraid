@@ -21,6 +21,26 @@ param(
     [switch]$WhatIf
 )
 
+# Auto-install required modules if missing
+$RequiredModules = @(
+    'Microsoft.Graph.Authentication',
+    'Microsoft.Graph.Identity.DirectoryManagement'
+)
+
+foreach ($Module in $RequiredModules) {
+    if (-not (Get-Module -ListAvailable -Name $Module)) {
+        Write-Host "Installing missing module: $Module"
+        try {
+            Install-Module $Module -Force -Scope CurrentUser -AllowClobber
+            Write-Host "Successfully installed: $Module"
+        }
+        catch {
+            Write-Error "Failed to install module $Module`: $($_.Exception.Message)"
+            exit 1
+        }
+    }
+}
+
 # Import required modules
 Import-Module Microsoft.Graph.Authentication -Force
 Import-Module Microsoft.Graph.Identity.DirectoryManagement -Force
@@ -169,7 +189,7 @@ function Get-TierGroups {
         
         Write-Log "Group summary:"
         foreach ($Tier in $TierGroups.Keys) {
-            Write-Log "  $Tier: $($TierGroups[$Tier].Count) groups"
+            Write-Log "  ${Tier}: $($TierGroups[$Tier].Count) groups"
         }
         
         return $TierGroups
