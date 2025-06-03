@@ -1,34 +1,66 @@
 variable "tier0_roles" {
-  description = "Azure AD roles for Tier-0 (highest privilege)"
+  description = "Azure AD roles for Tier-0 (highest privilege) - Direct control of enterprise identities and security infrastructure"
   type        = list(string)
   default     = [
-    "62e90394-69f5-4237-9190-012177145e10", # Global Administrator
-    "7be44c8a-adaf-4e2a-84d6-ab2649e08a13", # Privileged Authentication Administrator
-    "e8611ab8-c189-46e8-94e1-60213ab1f814", # Privileged Role Administrator
-    "3a2c62db-5318-420d-8d74-23affee5d9d5", # Intune Administrator
-    "fe930be7-5e62-47db-91af-98c3a49a38b1", # User Administrator
-    "9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3"  # Application Administrator
+    # Core Identity Control Roles
+    "Global Administrator",                    # Full control over all Azure AD and Microsoft 365 services
+    "Privileged Role Administrator",          # Can assign roles and manage PIM settings
+    "Privileged Authentication Administrator", # Can reset passwords and manage auth methods for any user
+    
+    # Authentication & Security Infrastructure
+    "Security Administrator",                 # Can manage security features across Microsoft 365 services
+    "Conditional Access Administrator",       # Can manage conditional access policies
+    "Authentication Administrator",           # Can view, set and reset authentication method information
+    
+    # Hybrid Identity Control
+    "Hybrid Identity Administrator",          # Can manage Azure AD Connect and federation settings
+    
+    # Enterprise Application Control
+    "Application Administrator"               # Can create and manage all aspects of app registrations and enterprise apps
   ]
 }
 
 variable "tier1_roles" {
-  description = "Azure AD roles for Tier-1 (mid privilege)"
+  description = "Azure AD roles for Tier-1 (mid privilege) - Server, application, and cloud service administration"
   type        = list(string)
   default     = [
-    "158c047a-c907-4556-b7ef-446551a6b5f7", # Cloud Application Administrator
-    "d29b2b05-8046-44ba-8758-1e26182fcf32", # Directory Synchronization Accounts
-    "e00e864a-17c5-4a4b-9c06-f5b95a8d5bd8"  # Partner Tier2 Support (Deprecated - should not be used)
+    # Application & Service Management
+    "Cloud Application Administrator",        # Can create and manage app registrations and enterprise apps (except proxy)
+    "Application Developer",                  # Can create application registrations independent of 'Users can register applications'
+    
+    # Resource Management
+    "Intune Administrator",                   # Full access to Microsoft Intune
+    "Exchange Administrator",                 # Can manage all aspects of Exchange Online
+    "SharePoint Administrator",               # Can manage all aspects of SharePoint Online
+    "Teams Administrator",                   # Can manage Microsoft Teams service
+    
+    # Compliance & Governance
+    "Compliance Administrator",               # Can read and manage compliance configuration and reports
+    "Information Protection Administrator",   # Can manage labels and policies for Azure Information Protection
+    
+    # Directory Sync
+    "Directory Synchronization Accounts"     # Service accounts for directory synchronization
   ]
 }
 
 variable "tier2_roles" {
-  description = "Azure AD roles for Tier-2 (low privilege)"
+  description = "Azure AD roles for Tier-2 (low privilege) - End-user support and basic administration"
   type        = list(string)
   default     = [
-    "729827e3-9c14-49f7-bb1b-9608f156bbb8", # Helpdesk Administrator
-    "966707d0-3269-4727-9be2-8c3a10f19b9d", # Password Administrator
-    "4a5d8f65-41da-4de4-8968-e035b65339cf", # Reports Reader
-    "790c1fb9-7f7d-4f88-86a1-ef1f95c05c1b", # Message Center Reader
-    "74ef975b-6605-40af-a5d2-b9539d836353"  # User Experience Success Manager
+    # Help Desk & User Support
+    "Helpdesk Administrator",                 # Can reset passwords for non-administrators and some admin roles
+    "Password Administrator",                 # Can reset passwords for non-administrators and Password Administrators
+    "User Administrator",                     # Can manage all aspects of users and groups (limited admin role management)
+    
+    # Read-Only Roles
+    "Reports Reader",                         # Can read usage reports
+    "Message Center Reader",                  # Can read messages and updates in Message Center
+    "Directory Readers",                      # Can read basic directory information
+    "Usage Summary Reports Reader",           # Can see only tenant level aggregates in Microsoft 365 Usage Analytics
+    
+    # Limited Administrative Roles
+    "License Administrator",                  # Can assign and remove licenses
+    "Guest Inviter",                         # Can invite guest users independent of 'members can invite guests' setting
+    "Groups Administrator"                    # Can create and manage groups and group settings like naming and expiration policies
   ]
 }
