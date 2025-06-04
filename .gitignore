@@ -1,0 +1,11 @@
+# Terraform critical files
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# PowerShell critical files
+*.ps1xml
+$PROFILE
+Microsoft.PowerShell_profile.ps1
