@@ -24,7 +24,8 @@ param(
 # Auto-install required modules if missing
 $RequiredModules = @(
     'Microsoft.Graph.Authentication',
-    'Microsoft.Graph.Identity.DirectoryManagement'
+    'Microsoft.Graph.Identity.DirectoryManagement',
+    'Microsoft.Graph.Groups'
 )
 
 foreach ($Module in $RequiredModules) {
@@ -44,6 +45,7 @@ foreach ($Module in $RequiredModules) {
 # Import required modules
 Import-Module Microsoft.Graph.Authentication -Force
 Import-Module Microsoft.Graph.Identity.DirectoryManagement -Force
+Import-Module Microsoft.Graph.Groups -Force
 
 # Initialize logging
 $LogFile = "create-restricted-aus-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
@@ -61,20 +63,38 @@ function Write-Log {
 
 function Connect-ToMSGraph {
     try {
-        Write-Log "Connecting to Microsoft Graph..."
+        Write-Log "Connecting to Microsoft Graph using service principal..."
         
-        # Define required scopes for administrative unit management
-        $Scopes = @(
-            'AdministrativeUnit.ReadWrite.All',
-            'Directory.ReadWrite.All',
-            'Group.ReadWrite.All',
-            'RoleManagement.ReadWrite.Directory'
-        )
+        # Get credentials from environment variables (set by Terraform)
+        $TenantId = $env:ARM_TENANT_ID
+        $ClientId = $env:ARM_CLIENT_ID  
+        $ClientSecret = $env:ARM_CLIENT_SECRET
         
-        if ($TenantId) {
-            Connect-MgGraph -Scopes $Scopes -TenantId $TenantId -NoWelcome
+        if (-not $TenantId -or -not $ClientId -or -not $ClientSecret) {
+            Write-Log "Service principal credentials not found in environment variables. Falling back to interactive auth..." -Level "WARNING"
+            
+            # Define required scopes for interactive authentication
+            $Scopes = @(
+                'AdministrativeUnit.ReadWrite.All',
+                'Directory.ReadWrite.All',
+                'Group.ReadWrite.All',
+                'RoleManagement.ReadWrite.Directory'
+            )
+            
+            if ($TenantId) {
+                Connect-MgGraph -Scopes $Scopes -TenantId $TenantId -NoWelcome
+            } else {
+                Connect-MgGraph -Scopes $Scopes -NoWelcome
+            }
         } else {
-            Connect-MgGraph -Scopes $Scopes -NoWelcome
+            Write-Log "Using service principal authentication"
+            
+            # Convert client secret to secure string
+            $SecureClientSecret = ConvertTo-SecureString $ClientSecret -AsPlainText -Force
+            $ClientCredential = New-Object System.Management.Automation.PSCredential($ClientId, $SecureClientSecret)
+            
+            # Connect using service principal
+            Connect-MgGraph -TenantId $TenantId -ClientSecretCredential $ClientCredential -NoWelcome
         }
         
         $Context = Get-MgContext
@@ -120,18 +140,50 @@ function New-RestrictedAdministrativeUnit {
         # Check if AU already exists
         $ExistingAU = Test-AdministrativeUnitExists -DisplayName $TierName
         if ($ExistingAU) {
-            Write-Log "Administrative Unit '$TierName' already exists. Updating to restricted mode..."
+            Write-Log "Administrative Unit '$TierName' already exists. Checking if restricted..."
             
-            if (-not $WhatIf) {
-                # Update existing AU to restricted mode
-                $UpdateParams = @{
-                    IsMemberManagementRestricted = $true
-                    Description = $Description
-                }
-                Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $ExistingAU.Id -BodyParameter $UpdateParams
-                Write-Log "Updated '$TierName' to restricted management mode"
+            # Check if it's already restricted
+            if ($ExistingAU.IsMemberManagementRestricted -eq $true) {
+                Write-Log "AU '$TierName' is already restricted"
             } else {
-                Write-Log "[WHATIF] Would update '$TierName' to restricted management mode"
+                Write-Log "AU '$TierName' exists but is not restricted. Updating to restricted mode..."
+                
+                if (-not $WhatIf) {
+                    try {
+                        # Update existing AU to restricted mode using PATCH
+                        $UpdateParams = @{
+                            IsMemberManagementRestricted = $true
+                            Description = $Description
+                        }
+                        Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $ExistingAU.Id -BodyParameter $UpdateParams
+                        Write-Log "Successfully updated '$TierName' to restricted management mode"
+                        
+                        # Verify the update
+                        $UpdatedAU = Get-MgDirectoryAdministrativeUnit -AdministrativeUnitId $ExistingAU.Id
+                        Write-Log "Verification - IsMemberManagementRestricted: $($UpdatedAU.IsMemberManagementRestricted)"
+                    }
+                    catch {
+                        Write-Log "Failed to update AU to restricted mode: $($_.Exception.Message)" -Level "ERROR"
+                        Write-Log "Attempting alternative approach using direct Graph API..." -Level "WARNING"
+                        
+                        # Alternative approach using Invoke-MgGraphRequest
+                        try {
+                            $GraphUri = "https://graph.microsoft.com/v1.0/directory/administrativeUnits/$($ExistingAU.Id)"
+                            $Body = @{
+                                isMemberManagementRestricted = $true
+                                description = $Description
+                            } | ConvertTo-Json
+                            
+                            Invoke-MgGraphRequest -Uri $GraphUri -Method PATCH -Body $Body -ContentType "application/json"
+                            Write-Log "Successfully updated '$TierName' to restricted mode using Graph API"
+                        }
+                        catch {
+                            Write-Log "Failed to update using Graph API: $($_.Exception.Message)" -Level "ERROR"
+                        }
+                    }
+                } else {
+                    Write-Log "[WHATIF] Would update '$TierName' to restricted management mode"
+                }
             }
             
             return $ExistingAU
@@ -143,17 +195,60 @@ function New-RestrictedAdministrativeUnit {
         }
         
         # Create new Restricted Administrative Unit
-        $AUParams = @{
-            DisplayName = $TierName
-            Description = $Description
-            Visibility = "Public"
-            IsMemberManagementRestricted = $true
+        Write-Log "Creating new restricted AU: $TierName"
+        
+        try {
+            $AUParams = @{
+                DisplayName = $TierName
+                Description = $Description
+                Visibility = "Public"
+                IsMemberManagementRestricted = $true
+            }
+            
+            $NewAU = New-MgDirectoryAdministrativeUnit -BodyParameter $AUParams
+            Write-Log "Successfully created Restricted Administrative Unit: $TierName (ID: $($NewAU.Id))"
+            
+            # Verify the creation
+            Write-Log "Verification - IsMemberManagementRestricted: $($NewAU.IsMemberManagementRestricted)"
+            
+            return $NewAU
         }
-        
-        $NewAU = New-MgDirectoryAdministrativeUnit -BodyParameter $AUParams
-        Write-Log "Successfully created Restricted Administrative Unit: $TierName (ID: $($NewAU.Id))"
-        
-        return $NewAU
+        catch {
+            Write-Log "Failed to create restricted AU, attempting without restriction first..." -Level "WARNING"
+            Write-Log "Error details: $($_.Exception.Message)" -Level "ERROR"
+            
+            # Try creating without restriction first, then updating
+            try {
+                $BasicAUParams = @{
+                    DisplayName = $TierName
+                    Description = $Description
+                    Visibility = "Public"
+                }
+                
+                $NewAU = New-MgDirectoryAdministrativeUnit -BodyParameter $BasicAUParams
+                Write-Log "Created basic AU: $TierName (ID: $($NewAU.Id))"
+                
+                # Now try to make it restricted
+                Start-Sleep -Seconds 2  # Wait for creation to complete
+                
+                $RestrictParams = @{
+                    IsMemberManagementRestricted = $true
+                }
+                
+                Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $NewAU.Id -BodyParameter $RestrictParams
+                Write-Log "Successfully updated '$TierName' to restricted mode"
+                
+                # Get the updated AU
+                $FinalAU = Get-MgDirectoryAdministrativeUnit -AdministrativeUnitId $NewAU.Id
+                Write-Log "Final verification - IsMemberManagementRestricted: $($FinalAU.IsMemberManagementRestricted)"
+                
+                return $FinalAU
+            }
+            catch {
+                Write-Log "Failed to create or update AU: $($_.Exception.Message)" -Level "ERROR"
+                return $null
+            }
+        }
     }
     catch {
         Write-Log "Failed to create/update Administrative Unit '$TierName': $($_.Exception.Message)" -Level "ERROR"

@@ -1,4 +1,3 @@
-# Create role-assignable groups for Tier-0 roles
 resource "azuread_group" "tier0_role_groups" {
   for_each = toset(var.tier0_roles)
  
@@ -9,7 +8,6 @@ resource "azuread_group" "tier0_role_groups" {
   mail_enabled             = false
 }
 
-# Create role-assignable groups for Tier-1 roles
 resource "azuread_group" "tier1_role_groups" {
   for_each = toset(var.tier1_roles)
  
@@ -20,7 +18,6 @@ resource "azuread_group" "tier1_role_groups" {
   mail_enabled             = false
 }
 
-# Create role-assignable groups for Tier-2 roles
 resource "azuread_group" "tier2_role_groups" {
   for_each = toset(var.tier2_roles)
  

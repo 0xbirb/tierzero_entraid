@@ -2,21 +2,14 @@ variable "tier0_roles" {
   description = "Azure AD roles for Tier-0 (highest privilege) - Direct control of enterprise identities and security infrastructure"
   type        = list(string)
   default     = [
-    # Core Identity Control Roles
-    "Global Administrator",                    # Full control over all Azure AD and Microsoft 365 services
-    "Privileged Role Administrator",          # Can assign roles and manage PIM settings
-    "Privileged Authentication Administrator", # Can reset passwords and manage auth methods for any user
-    
-    # Authentication & Security Infrastructure
-    "Security Administrator",                 # Can manage security features across Microsoft 365 services
-    "Conditional Access Administrator",       # Can manage conditional access policies
-    "Authentication Administrator",           # Can view, set and reset authentication method information
-    
-    # Hybrid Identity Control
-    "Hybrid Identity Administrator",          # Can manage Azure AD Connect and federation settings
-    
-    # Enterprise Application Control
-    "Application Administrator"               # Can create and manage all aspects of app registrations and enterprise apps
+    "Global Administrator",
+    "Privileged Role Administrator",
+    "Privileged Authentication Administrator",
+    "Security Administrator",
+    "Conditional Access Administrator",
+    "Authentication Administrator",
+    "Hybrid Identity Administrator",
+    "Application Administrator"
   ]
 }
 
@@ -24,22 +17,15 @@ variable "tier1_roles" {
   description = "Azure AD roles for Tier-1 (mid privilege) - Server, application, and cloud service administration"
   type        = list(string)
   default     = [
-    # Application & Service Management
-    "Cloud Application Administrator",        # Can create and manage app registrations and enterprise apps (except proxy)
-    "Application Developer",                  # Can create application registrations independent of 'Users can register applications'
-    
-    # Resource Management
-    "Intune Administrator",                   # Full access to Microsoft Intune
-    "Exchange Administrator",                 # Can manage all aspects of Exchange Online
-    "SharePoint Administrator",               # Can manage all aspects of SharePoint Online
-    "Teams Administrator",                   # Can manage Microsoft Teams service
-    
-    # Compliance & Governance
-    "Compliance Administrator",               # Can read and manage compliance configuration and reports
-    "Information Protection Administrator",   # Can manage labels and policies for Azure Information Protection
-    
-    # Directory Sync
-    "Directory Synchronization Accounts"     # Service accounts for directory synchronization
+    "Cloud Application Administrator",
+    "Application Developer",
+    "Intune Administrator",
+    "Exchange Administrator",
+    "SharePoint Administrator",
+    "Teams Administrator",
+    "Compliance Administrator",
+    "Information Protection Administrator",
+    "Directory Synchronization Accounts"
   ]
 }
 
@@ -47,20 +33,72 @@ variable "tier2_roles" {
   description = "Azure AD roles for Tier-2 (low privilege) - End-user support and basic administration"
   type        = list(string)
   default     = [
-    # Help Desk & User Support
-    "Helpdesk Administrator",                 # Can reset passwords for non-administrators and some admin roles
-    "Password Administrator",                 # Can reset passwords for non-administrators and Password Administrators
-    "User Administrator",                     # Can manage all aspects of users and groups (limited admin role management)
-    
-    # Read-Only Roles
-    "Reports Reader",                         # Can read usage reports
-    "Message Center Reader",                  # Can read messages and updates in Message Center
-    "Directory Readers",                      # Can read basic directory information
-    "Usage Summary Reports Reader",           # Can see only tenant level aggregates in Microsoft 365 Usage Analytics
-    
-    # Limited Administrative Roles
-    "License Administrator",                  # Can assign and remove licenses
-    "Guest Inviter",                         # Can invite guest users independent of 'members can invite guests' setting
-    "Groups Administrator"                    # Can create and manage groups and group settings like naming and expiration policies
+    "Helpdesk Administrator",
+    "Password Administrator",
+    "User Administrator",
+    "Reports Reader",
+    "Message Center Reader",
+    "Directory Readers",
+    "Usage Summary Reports Reader",
+    "License Administrator",
+    "Guest Inviter",
+    "Groups Administrator"
   ]
+}
+
+variable "tier0_privileged_access_workstations" {
+  description = "REQUIRED: List of Privileged Access Workstation (PAW) device IDs for Tier-0 accounts. These are the ONLY devices that Tier-0 privileged accounts will be allowed to sign in from."
+  type        = list(string)
+  
+  validation {
+    condition     = length(var.tier0_privileged_access_workstations) > 0
+    error_message = "At least one Privileged Access Workstation device ID must be specified for Tier-0 accounts."
+  }
+  
+  validation {
+    condition = alltrue([
+      for device_id in var.tier0_privileged_access_workstations :
+      can(regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", device_id))
+    ])
+    error_message = "All device IDs must be valid UUIDs in the format: 12345678-abcd-1234-efgh-123456789012"
+  }
+}
+
+variable "enable_authentication_strength_policies" {
+  description = "Enable custom authentication strength policies for tiered access model"
+  type        = bool
+  default     = true
+}
+
+variable "enable_conditional_access_policies" {
+  description = "Enable Conditional Access policies for tiered access model"
+  type        = bool
+  default     = true
+}
+
+variable "conditional_access_policy_state" {
+  description = "State for Conditional Access policies: enabled, disabled, or enabledForReportingButNotEnforced"
+  type        = string
+  default     = "enabledForReportingButNotEnforced"
+  
+  validation {
+    condition = contains([
+      "enabled",
+      "disabled", 
+      "enabledForReportingButNotEnforced"
+    ], var.conditional_access_policy_state)
+    error_message = "Policy state must be: enabled, disabled, or enabledForReportingButNotEnforced"
+  }
+}
+
+variable "conditional_access_emergency_accounts" {
+  description = "Emergency break-glass account user IDs to exclude from all CA policies"
+  type        = list(string)
+  default     = []
+}
+
+variable "trusted_locations" {
+  description = "Named location IDs considered trusted (e.g., corporate networks)"
+  type        = list(string)
+  default     = []
 }
