@@ -4,6 +4,7 @@
 *.tfvars
 .terraform/
 .terraform.lock.hcl
+.terraform.tfstate
 
 # PowerShell critical files
 *.ps1xml
