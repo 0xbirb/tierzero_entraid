@@ -16,7 +16,7 @@ This Terraform deployment will create the following resources in your Entra ID t
 
 - **Role-Enabled Security Groups**: Three groups (Tier-0, Tier-1, Tier-2) with Entra ID roles assigned
 - **Administrative Units**: Restricted administrative units for each tier to limit scope of access
-- **Conditional Access Policies**: Seven policies enforcing PAW requirements, authentication strength, and device compliance
+- **Conditional Access Policies**: Five policies enforcing PAW requirements and authentication strength
 - **Authentication Strength Policies**: Phishing-resistant authentication requirements for privileged tiers
 - **Custom Role Assignments**: Proper role assignments to the security groups for each tier
 
@@ -31,7 +31,15 @@ This Terraform deployment will create the following resources in your Entra ID t
 ## Prerequisites
 
 - Entra ID tenant with Global Administrator permissions
-- Service principal with appropriate permissions
+- Service principal with the following Microsoft Graph API permissions:
+  - `AdministrativeUnit.ReadWrite.All` - Create and manage administrative units
+  - `Device.Read.All` - Validate PAW device IDs (recommended)
+  - `Directory.ReadWrite.All` - General directory operations
+  - `Group.ReadWrite.All` - Create and manage security groups
+  - `Policy.ReadWrite.AuthenticationMethod` - Manage authentication strength policies
+  - `Policy.ReadWrite.ConditionalAccess` - Manage conditional access policies
+  - `RoleManagement.ReadWrite.Directory` - Assign directory roles to groups
+  - `PrivilegedAccess.ReadWrite.AzureAD` - Create restricted management administrative units (RMAUs)
 - PowerShell with Microsoft Graph modules
 - Terraform >= 1.0
 
@@ -138,9 +146,7 @@ The role-enabled groups provide the security boundaries and conditional access e
 - `{OrganizationName}-Tier0-PAW-Allow`: Allows Tier-0 access only from approved PAW devices
 - `{OrganizationName}-Tier0-PhishingResistant-Auth`: Requires phishing-resistant authentication for Tier-0
 - `{OrganizationName}-Tier1-Strong-Auth`: Strong authentication for Tier-1 users
-- `{OrganizationName}-Tier1-Compliant-Device`: Requires compliant/domain-joined devices for Tier-1
 - `{OrganizationName}-Tier2-Standard-MFA`: Standard MFA for Tier-2 users
-- `{OrganizationName}-SigninRisk-AllTiers`: Requires MFA for high/medium sign-in risk
 
 ## Troubleshooting
 
