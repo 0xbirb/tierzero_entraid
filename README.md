@@ -14,7 +14,7 @@ This Terraform configuration implements a tiered access model for Azure AD (Entr
 
 This Terraform deployment will create the following resources in your Entra ID tenant:
 
-- **Role-Enabled Security Groups**: Three groups (Tier-0, Tier-1, Tier-2) with Entra ID roles assigned
+- **Role-Enabled Security Groups**: For each tier (Tier-0, Tier-1, Tier-2), a security group will be created for each role assigned to that tier
 - **Administrative Units**: Restricted administrative units for each tier to limit scope of access
 - **Conditional Access Policies**: Five policies enforcing PAW requirements and authentication strength
 - **Authentication Strength Policies**: Phishing-resistant authentication requirements for privileged tiers
