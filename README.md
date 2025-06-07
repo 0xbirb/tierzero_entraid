@@ -20,7 +20,7 @@ This Terraform configuration implements a tiered access model for Azure AD (Entr
 
 ## Prerequisites
 
-- Azure AD tenant with Global Administrator permissions
+- Entra ID tenant with Global Administrator permissions
 - Service principal with appropriate permissions
 - PowerShell with Microsoft Graph modules
 - Terraform >= 1.0
@@ -32,7 +32,7 @@ This Terraform configuration implements a tiered access model for Azure AD (Entr
 Create a `terraform.tfvars` file with the following required variables:
 
 ```hcl
-# Azure AD Service Principal Configuration
+# Entra ID Service Principal Configuration
 tenant_id         = "12345678-abcd-1234-efgh-123456789012"
 client_id         = "87654321-dcba-4321-hgfe-210987654321"
 client_secret     = "your-service-principal-client-secret"
@@ -76,7 +76,7 @@ trusted_locations = [
 To get device IDs for your Privileged Access Workstations:
 
 1. **Azure Portal Method**:
-   - Go to Azure AD > Devices
+   - Go to Entra ID > Devices
    - Find your PAW devices
    - Copy the Object ID (Device ID)
 
@@ -132,6 +132,6 @@ To get device IDs for your Privileged Access Workstations:
 
 The PowerShell script creates detailed logs in the format: `create-restricted-aus-YYYYMMDD-HHMMSS.log`
 
-## Support
+### PIM enabled Groups
 
-For issues and feedback, please refer to the project documentation or contact your administrator.
+Currently Privileged Identity Managed Groups are not supported.
