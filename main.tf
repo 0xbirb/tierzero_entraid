@@ -18,44 +18,37 @@ provider "azuread" {
   client_secret = var.client_secret
 }
 
-variable "tenant_id" {
-  description = "The Azure AD tenant ID"
-  type        = string
-}
 
-variable "client_id" {
-  description = "The service principal client ID"
-  type        = string
-}
-
-variable "client_secret" {
-  description = "The service principal client secret"
-  type        = string
-  sensitive   = true
-}
-
-variable "organization_name" {
-  description = "Organization name for resource naming"
-  type        = string
-  default     = "MyOrg"
-}
 
 locals {
   role_display_names = {
     "Global Administrator"                    = "Global-Administrator"
     "Privileged Authentication Administrator" = "Privileged-Authentication-Administrator"
     "Privileged Role Administrator"           = "Privileged-Role-Administrator"
-    "Intune Administrator"                    = "Intune-Administrator"
-    "User Administrator"                      = "User-Administrator"
-    "Application Administrator"               = "Application-Administrator"
-    "Cloud Application Administrator"         = "Cloud-Application-Administrator"
+    "Security Administrator"                  = "Security-Administrator"
+    "Conditional Access Administrator"        = "Conditional-Access-Administrator"
     "Authentication Administrator"            = "Authentication-Administrator"
-    "Directory Readers"                       = "Directory-Readers"
+    "Hybrid Identity Administrator"           = "Hybrid-Identity-Administrator"
+    "Application Administrator"               = "Application-Administrator"
+    "Intune Administrator"                    = "Intune-Administrator"
+    "Cloud Application Administrator"         = "Cloud-Application-Administrator"
+    "Application Developer"                   = "Application-Developer"
+    "Exchange Administrator"                  = "Exchange-Administrator"
+    "SharePoint Administrator"                = "SharePoint-Administrator"
+    "Teams Administrator"                     = "Teams-Administrator"
+    "Compliance Administrator"                = "Compliance-Administrator"
+    "Information Protection Administrator"    = "Information-Protection-Administrator"
+    "Directory Synchronization Accounts"     = "Directory-Synchronization-Accounts"
     "Helpdesk Administrator"                  = "Helpdesk-Administrator"
     "Password Administrator"                  = "Password-Administrator"
+    "User Administrator"                      = "User-Administrator"
     "Reports Reader"                          = "Reports-Reader"
     "Message Center Reader"                   = "Message-Center-Reader"
-    "User Experience Success Manager"         = "User-Experience-Success-Manager"
+    "Directory Readers"                       = "Directory-Readers"
+    "Usage Summary Reports Reader"            = "Usage-Summary-Reports-Reader"
+    "License Administrator"                   = "License-Administrator"
+    "Guest Inviter"                           = "Guest-Inviter"
+    "Groups Administrator"                    = "Groups-Administrator"
   }
 }
 
@@ -67,7 +60,7 @@ resource "null_resource" "create_administrative_units" {
   ]
 
   provisioner "local-exec" {
-    command     = "pwsh -File ${path.module}/scripts/create-administrative-units.ps1"
+    command     = "pwsh -File ${path.module}/scripts/create-administrative-units.ps1 -OrganizationName '${var.organization_name}'"
     working_dir = path.module
     
     environment = {
@@ -78,9 +71,10 @@ resource "null_resource" "create_administrative_units" {
   }
 
   triggers = {
-    tier0_groups = jsonencode([for group in azuread_group.tier0_role_groups : group.id])
-    tier1_groups = jsonencode([for group in azuread_group.tier1_role_groups : group.id])
-    tier2_groups = jsonencode([for group in azuread_group.tier2_role_groups : group.id])
-    script_hash  = filemd5("${path.module}/scripts/create-administrative-units.ps1")
+    tier0_groups      = jsonencode([for group in azuread_group.tier0_role_groups : group.id])
+    tier1_groups      = jsonencode([for group in azuread_group.tier1_role_groups : group.id])
+    tier2_groups      = jsonencode([for group in azuread_group.tier2_role_groups : group.id])
+    organization_name = var.organization_name
+    script_hash       = filemd5("${path.module}/scripts/create-administrative-units.ps1")
   }
 }

@@ -54,6 +54,12 @@ resource "azuread_conditional_access_policy" "tier0_paw_allow" {
     locations {
       included_locations = ["All"]
     }
+    devices {
+      filter {
+        mode = "include"
+        rule = "device.deviceId -in [${join(", ", [for device_id in var.tier0_privileged_access_workstations : "'${device_id}'"])}]"
+      }
+    }
     client_app_types = ["all"]
   }
   
@@ -122,34 +128,6 @@ resource "azuread_conditional_access_policy" "tier1_strong_auth" {
   }
 }
 
-resource "azuread_conditional_access_policy" "tier1_compliant_device" {
-  count = local.create_ca_policies ? 1 : 0
-  
-  display_name = "${var.organization_name}-Tier1-Compliant-Device"
-  state        = var.conditional_access_policy_state
-  
-  conditions {
-    users {
-      included_groups = local.tier1_group_ids
-      excluded_users  = var.conditional_access_emergency_accounts
-    }
-    applications {
-      included_applications = ["All"]
-    }
-    platforms {
-      included_platforms = ["all"]
-    }
-    locations {
-      included_locations = ["All"]
-    }
-    client_app_types = ["all"]
-  }
-  
-  grant_controls {
-    operator          = "OR"
-    built_in_controls = ["compliantDevice", "domainJoinedDevice"]
-  }
-}
 
 resource "azuread_conditional_access_policy" "tier2_standard_mfa" {
   count = local.create_ca_policies && local.create_auth_strength ? 1 : 0
@@ -181,52 +159,7 @@ resource "azuread_conditional_access_policy" "tier2_standard_mfa" {
   }
 }
 
-resource "azuread_conditional_access_policy" "block_legacy_auth_all_tiers" {
-  count = local.create_ca_policies ? 1 : 0
-  
-  display_name = "${var.organization_name}-Block-Legacy-Auth-AllTiers"
-  state        = var.conditional_access_policy_state
-  
-  conditions {
-    users {
-      included_groups = concat(local.tier0_group_ids, local.tier1_group_ids, local.tier2_group_ids)
-      excluded_users  = var.conditional_access_emergency_accounts
-    }
-    applications {
-      included_applications = ["All"]
-    }
-    client_app_types = ["exchangeActiveSync", "other"]
-  }
-  
-  grant_controls {
-    operator          = "OR"
-    built_in_controls = ["block"]
-  }
-}
 
-resource "azuread_conditional_access_policy" "signin_risk_all_tiers" {
-  count = local.create_ca_policies ? 1 : 0
-  
-  display_name = "${var.organization_name}-SigninRisk-AllTiers"
-  state        = var.conditional_access_policy_state
-  
-  conditions {
-    users {
-      included_groups = concat(local.tier0_group_ids, local.tier1_group_ids, local.tier2_group_ids)
-      excluded_users  = var.conditional_access_emergency_accounts
-    }
-    applications {
-      included_applications = ["All"]
-    }
-    sign_in_risk_levels = ["high", "medium"]
-    client_app_types = ["all"]
-  }
-  
-  grant_controls {
-    operator          = "AND"
-    built_in_controls = ["mfa"]
-  }
-}
 
 output "conditional_access_policies" {
   description = "Conditional Access policy information for verification"
@@ -237,15 +170,11 @@ output "conditional_access_policies" {
       auth_strength = local.create_auth_strength ? azuread_conditional_access_policy.tier0_auth_strength[0].display_name : "disabled"
     }
     tier1_policies = {
-      strong_auth      = local.create_auth_strength ? azuread_conditional_access_policy.tier1_strong_auth[0].display_name : "disabled"
-      compliant_device = azuread_conditional_access_policy.tier1_compliant_device[0].display_name
+      strong_auth = local.create_auth_strength ? azuread_conditional_access_policy.tier1_strong_auth[0].display_name : "disabled"
     }
     tier2_policies = {
       standard_mfa = local.create_auth_strength ? azuread_conditional_access_policy.tier2_standard_mfa[0].display_name : "disabled"
     }
-    cross_tier_policies = {
-      block_legacy_auth = azuread_conditional_access_policy.block_legacy_auth_all_tiers[0].display_name
-      signin_risk      = azuread_conditional_access_policy.signin_risk_all_tiers[0].display_name
-    }
+    cross_tier_policies = {}
   } : {}
 }

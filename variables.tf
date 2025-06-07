@@ -1,3 +1,19 @@
+variable "tenant_id" {
+  description = "The Azure AD tenant ID"
+  type        = string
+}
+
+variable "client_id" {
+  description = "The service principal client ID"
+  type        = string
+}
+
+variable "client_secret" {
+  description = "The service principal client secret"
+  type        = string
+  sensitive   = true
+}
+
 variable "tier0_roles" {
   description = "Azure AD roles for Tier-0 (highest privilege) - Direct control of enterprise identities and security infrastructure"
   type        = list(string)
@@ -9,7 +25,8 @@ variable "tier0_roles" {
     "Conditional Access Administrator",
     "Authentication Administrator",
     "Hybrid Identity Administrator",
-    "Application Administrator"
+    "Application Administrator",
+    "Intune Administrator"
   ]
 }
 
@@ -19,7 +36,6 @@ variable "tier1_roles" {
   default     = [
     "Cloud Application Administrator",
     "Application Developer",
-    "Intune Administrator",
     "Exchange Administrator",
     "SharePoint Administrator",
     "Teams Administrator",
@@ -101,4 +117,15 @@ variable "trusted_locations" {
   description = "Named location IDs considered trusted (e.g., corporate networks)"
   type        = list(string)
   default     = []
+}
+
+variable "organization_name" {
+  description = "Organization name used as prefix for all Azure AD resources (groups, conditional access policies, etc.). This replaces 'MyOrg' throughout the configuration."
+  type        = string
+  default     = "MyOrg"
+  
+  validation {
+    condition     = can(regex("^[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9]$", var.organization_name)) || length(var.organization_name) == 1
+    error_message = "Organization name must contain only alphanumeric characters and hyphens, cannot start or end with hyphen."
+  }
 }
