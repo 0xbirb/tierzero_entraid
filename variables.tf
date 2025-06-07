@@ -41,7 +41,8 @@ variable "tier1_roles" {
     "Teams Administrator",
     "Compliance Administrator",
     "Information Protection Administrator",
-    "Directory Synchronization Accounts"
+    "Directory Synchronization Accounts",
+    "User Administrator"
   ]
 }
 
@@ -51,7 +52,6 @@ variable "tier2_roles" {
   default     = [
     "Helpdesk Administrator",
     "Password Administrator",
-    "User Administrator",
     "Reports Reader",
     "Message Center Reader",
     "Directory Readers",
@@ -109,12 +109,6 @@ variable "conditional_access_policy_state" {
 
 variable "conditional_access_emergency_accounts" {
   description = "Emergency break-glass account user IDs to exclude from all CA policies"
-  type        = list(string)
-  default     = []
-}
-
-variable "trusted_locations" {
-  description = "Named location IDs considered trusted (e.g., corporate networks)"
   type        = list(string)
   default     = []
 }

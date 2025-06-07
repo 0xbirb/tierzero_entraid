@@ -82,10 +82,41 @@ conditional_access_emergency_accounts = [
     "emergency-admin@yourdomain.com"
 ]
 
-# Trusted Locations (Named Location IDs)
-trusted_locations = [
-    "named-location-id-1",
-    "named-location-id-2"
+# Customize Role Assignments (Override defaults)
+tier0_roles = [
+    "Global Administrator",
+    "Privileged Role Administrator",
+    "Privileged Authentication Administrator",
+    "Security Administrator",
+    "Conditional Access Administrator",
+    "Authentication Administrator",
+    "Hybrid Identity Administrator",
+    "Application Administrator",
+    "Intune Administrator"
+]
+
+tier1_roles = [
+    "Cloud Application Administrator",
+    "Application Developer",
+    "Exchange Administrator",
+    "SharePoint Administrator",
+    "Teams Administrator",
+    "Compliance Administrator",
+    "Information Protection Administrator",
+    "Directory Synchronization Accounts",
+    "User Administrator"
+]
+
+tier2_roles = [
+    "Helpdesk Administrator",
+    "Password Administrator",
+    "Reports Reader",
+    "Message Center Reader",
+    "Directory Readers",
+    "Usage Summary Reports Reader",
+    "License Administrator",
+    "Guest Inviter",
+    "Groups Administrator"
 ]
 ```
 
