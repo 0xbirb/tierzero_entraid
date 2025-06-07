@@ -10,6 +10,16 @@ This Terraform configuration implements a tiered access model for Azure AD (Entr
 - **Tier-1**: Mid-level privilege - Server, application, and cloud service administration
 - **Tier-2**: Low privilege - End-user support and basic administration
 
+## What This Deployment Creates
+
+This Terraform deployment will create the following resources in your Entra ID tenant:
+
+- **Role-Enabled Security Groups**: Three groups (Tier-0, Tier-1, Tier-2) with Entra ID roles assigned
+- **Administrative Units**: Restricted administrative units for each tier to limit scope of access
+- **Conditional Access Policies**: Seven policies enforcing PAW requirements, authentication strength, and device compliance
+- **Authentication Strength Policies**: Phishing-resistant authentication requirements for privileged tiers
+- **Custom Role Assignments**: Proper role assignments to the security groups for each tier
+
 ## Features
 
 - Role-based security groups for each tier
@@ -102,6 +112,18 @@ To get device IDs for your Privileged Access Workstations:
    ```bash
    terraform apply
    ```
+
+## Important Implementation Notes
+
+**Manual User Assignment Required**
+
+After deploying this Terraform configuration, you must manually:
+
+1. **Assign users to the role-enabled groups** created by this deployment (Tier-0, Tier-1, Tier-2 groups)
+2. **Remove direct role assignments** for administrators who will now receive access through group membership
+3. **This concept only works when granting access via role-enabled groups** - direct role assignments bypass the tiered access controls
+
+The role-enabled groups provide the security boundaries and conditional access enforcement. Direct role assignments will not be subject to the same conditional access policies and administrative unit restrictions.
 
 ## Security Considerations
 
