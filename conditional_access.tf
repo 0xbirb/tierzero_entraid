@@ -147,7 +147,6 @@ resource "azuread_conditional_access_policy" "tier2_standard_mfa" {
     }
     locations {
       included_locations = ["All"]
-      excluded_locations = var.trusted_locations
     }
     client_app_types = ["all"]
   }
