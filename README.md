@@ -6,7 +6,7 @@ A tier zero blueprint for EntraID - automated with Terraform
 
 This Terraform configuration implements a tiered access model for Entra ID with three security tiers:
 
-- **Tier-0**: Highest privilege - Identity and security infrastructure control
+- **Tier-0**: Highest privilege - Identity and security infrastructure control (includes roles with paths to Global Admin)
 - **Tier-1**: Mid-level privilege - Server, application, and cloud service administration
 - **Tier-2**: Low privilege - End-user support and basic administration
 
