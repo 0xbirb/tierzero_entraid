@@ -4,7 +4,7 @@ locals {
 
 resource "azuread_authentication_strength_policy" "tier0_phishing_resistant" {
   count = local.create_auth_strength ? 1 : 0
-  display_name = "${var.organization_name}-Tier0-PhishingResistant"
+  display_name = "${var.organization_name}-T0-PhishRes"
   description  = "Tier-0 phishing-resistant auth only (FIDO2, WHfB, certificates) for highest privilege accounts"
   
   allowed_combinations = [
@@ -17,7 +17,7 @@ resource "azuread_authentication_strength_policy" "tier0_phishing_resistant" {
 
 resource "azuread_authentication_strength_policy" "tier1_strong_auth" {
   count = local.create_auth_strength ? 1 : 0
-  display_name = "${var.organization_name}-Tier1-StrongAuth"
+  display_name = "${var.organization_name}-T1-Strong"
   description  = "Tier-1 strong auth (phishing-resistant + MS Authenticator) for server/app administrators"
   
   allowed_combinations = [
@@ -33,7 +33,7 @@ resource "azuread_authentication_strength_policy" "tier1_strong_auth" {
 
 resource "azuread_authentication_strength_policy" "tier2_standard_mfa" {
   count = local.create_auth_strength ? 1 : 0
-  display_name = "${var.organization_name}-Tier2-StandardMFA" 
+  display_name = "${var.organization_name}-T2-MFA" 
   description  = "Tier-2 standard secure MFA (no SMS/Voice) for helpdesk and basic admin functions"
   
   allowed_combinations = [
