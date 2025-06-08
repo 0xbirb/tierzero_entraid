@@ -27,6 +27,10 @@ locals {
     "License Administrator"                   = "4d6ac14f-3453-41d0-bef9-a3e0c569773a"
     "Guest Inviter"                           = "95e79109-95c0-4d8e-aee3-d01accf2d47b"
     "Groups Administrator"                    = "fdd7a751-b60b-444a-984c-02652fe8fa1c"
+    "Global Reader"                           = "f2ef992c-3afb-46b9-b7cf-a126ee74c451"
+    "Security Reader"                         = "5d6b6bb7-de71-4623-b4af-96380a352509"
+    "Cloud Device Administrator"              = "7698a772-787b-4ac8-901f-60d6b08affd2"
+    "Identity Governance Administrator"       = "45d8d3c5-c802-45c6-b32a-1d70b5e1e86e"
   }
 }
 

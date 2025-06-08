@@ -105,7 +105,11 @@ tier1_roles = [
     "Compliance Administrator",
     "Information Protection Administrator",
     "Directory Synchronization Accounts",
-    "User Administrator"
+    "User Administrator",
+    "Global Reader",
+    "Identity Governance Administrator",
+    "Security Reader",
+    "Cloud Device Administrator"
 ]
 
 tier2_roles = [
@@ -113,6 +117,7 @@ tier2_roles = [
     "Password Administrator",
     "Directory Readers",
     "License Administrator",
+    "Guest Inviter",
     "Groups Administrator"
 ]
 ```

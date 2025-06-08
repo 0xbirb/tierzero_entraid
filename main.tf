@@ -49,6 +49,10 @@ locals {
     "License Administrator"                   = "License-Administrator"
     "Guest Inviter"                           = "Guest-Inviter"
     "Groups Administrator"                    = "Groups-Administrator"
+    "Global Reader"                           = "Global-Reader"
+    "Security Reader"                         = "Security-Reader"
+    "Cloud Device Administrator"              = "Cloud-Device-Administrator"
+    "Identity Governance Administrator"       = "Identity-Governance-Administrator"
   }
 }
 

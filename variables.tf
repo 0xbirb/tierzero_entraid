@@ -42,7 +42,11 @@ variable "tier1_roles" {
     "Compliance Administrator",
     "Information Protection Administrator",
     "Directory Synchronization Accounts",
-    "User Administrator"
+    "User Administrator",
+    "Global Reader",
+    "Identity Governance Administrator",
+    "Security Reader",
+    "Cloud Device Administrator"
   ]
 }
 
@@ -52,10 +56,7 @@ variable "tier2_roles" {
   default     = [
     "Helpdesk Administrator",
     "Password Administrator",
-    "Reports Reader",
-    "Message Center Reader",
     "Directory Readers",
-    "Usage Summary Reports Reader",
     "License Administrator",
     "Guest Inviter",
     "Groups Administrator"
