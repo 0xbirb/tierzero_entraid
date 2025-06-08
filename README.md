@@ -170,7 +170,6 @@ When onboarding administrators to the tiered access model, there are specific ma
 
 **Temporary RMAU Group Removal Process**
 - During admin onboarding, you must temporarily remove the relevant role group from the Restricted Management Administrative Unit (RMAU)
-- This operation requires Global Administrator privileges as there is no custom role that can safely perform this action
 - A custom role would introduce additional security gaps by requiring a role-enabled group for it, which is not currently possible within the security model
 - Therefore, the temporary removal approach is used to maintain security while enabling onboarding
 
