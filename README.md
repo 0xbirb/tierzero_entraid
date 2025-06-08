@@ -216,6 +216,10 @@ The PowerShell script creates detailed logs in the format: `create-restricted-au
 
 Currently Privileged Identity Managed Groups are not supported.
 
+## Want to remove the deployment?
+
+Simply delete the RMAU's in Entra ID and wait about 10 Minutes until everything is in sync. To remove the other parts, simply run `terraform destroy`. Terraform holds a terraform.tfstate file, which includes the entire infrastructure you created.
+
 ---
 
 *This project was developed with the assistance of generative AI*
