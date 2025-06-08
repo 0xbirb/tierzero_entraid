@@ -202,3 +202,26 @@ The PowerShell script creates detailed logs in the format: `create-restricted-au
 ### PIM enabled Groups
 
 Currently Privileged Identity Managed Groups are not supported.
+
+## How to manage
+
+### Onboarding Administrators to the Tiering Concept
+
+When onboarding administrators to the tiered access model, there are specific management considerations due to current limitations:
+
+**Temporary RMAU Group Removal Process**
+- During admin onboarding, you must temporarily remove the relevant role group from the Restricted Management Administrative Unit (RMAU)
+- This operation requires Global Administrator privileges as there is no custom role that can safely perform this action
+- A custom role would introduce additional security gaps by requiring a role-enabled group for it, which is not currently possible within the security model
+- Therefore, the temporary removal approach is used to maintain security while enabling onboarding
+
+**Tier-0 Device Management**
+When onboarding a new administrator with Tier-0 roles:
+- The administrator's device ID must be manually added to the Conditional Access Policies with the Device-Filter
+- **Alternative approach**: Deploy a secured jump server solution, such as an Azure Virtual Desktop (AVD) deployment, to provide controlled access without individual device management
+
+**Process Summary**
+1. Temporarily remove the target role group from RMAU (requires Global Admin)
+2. Add the new administrator to the appropriate tier group
+3. For Tier-0: Add device ID to conditional access device filter OR provide access through secured jump server
+4. Re-add the role group to RMAU to restore protection
