@@ -28,7 +28,7 @@ resource "azuread_conditional_access_policy" "tier0_paw_device_filter" {
     devices {
       filter {
         mode = "exclude"
-        rule = "device.deviceId -in [${join(", ", [for device_id in var.tier0_privileged_access_workstations : "'${device_id}'"])}]"
+        rule = join(" or ", [for device_id in var.tier0_privileged_access_workstations : "device.deviceId -eq \"${device_id}\""])
       }
     }
     client_app_types = ["all"]
