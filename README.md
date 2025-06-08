@@ -160,7 +160,9 @@ To get device IDs for your Privileged Access Workstations:
    terraform apply
    ```
 
-## Important Implementation Notes
+## Management and Implementation
+
+### Post-Deployment Requirements
 
 **Manual User Assignment Required**
 
@@ -171,6 +173,35 @@ After deploying this Terraform configuration, you must manually:
 3. **This concept only works when granting access via role-enabled groups** - direct role assignments bypass the tiered access controls
 
 The role-enabled groups provide the security boundaries and conditional access enforcement. Direct role assignments will not be subject to the same conditional access policies and administrative unit restrictions.
+
+**Conditional Access Policy Review and Activation**
+
+By default, Conditional Access Policies are created in Report-Only mode (`conditional_access_policy_state = "enabledForReportingButNotEnforced"`). You must:
+
+1. **Monitor and review** the behavior of the CAPs in Report-Only mode to ensure they work as expected
+2. **Test access patterns** for all tier users to identify any issues
+3. **Enable the policies** by changing `conditional_access_policy_state` to `"enabled"` after validation
+
+### Onboarding Administrators to the Tiering Concept
+
+When onboarding administrators to the tiered access model, there are specific management considerations due to current limitations:
+
+**Temporary RMAU Group Removal Process**
+- During admin onboarding, you must temporarily remove the relevant role group from the Restricted Management Administrative Unit (RMAU)
+- This operation requires Global Administrator privileges as there is no custom role that can safely perform this action
+- A custom role would introduce additional security gaps by requiring a role-enabled group for it, which is not currently possible within the security model
+- Therefore, the temporary removal approach is used to maintain security while enabling onboarding
+
+**Tier-0 Device Management**
+When onboarding a new administrator with Tier-0 roles:
+- The administrator's device ID must be manually added to the Conditional Access Policies with the Device-Filter
+- **Alternative approach**: Deploy a secured jump server solution, such as an Azure Virtual Desktop (AVD) deployment, to provide controlled access without individual device management
+
+**Process Summary**
+1. Temporarily remove the target role group from RMAU (requires Global Admin)
+2. Add the new administrator to the appropriate tier group
+3. For Tier-0: Add device ID to conditional access device filter OR provide access through secured jump server
+4. Re-add the role group to RMAU to restore protection
 
 ## Security Considerations
 
@@ -203,25 +234,6 @@ The PowerShell script creates detailed logs in the format: `create-restricted-au
 
 Currently Privileged Identity Managed Groups are not supported.
 
-## How to manage
+---
 
-### Onboarding Administrators to the Tiering Concept
-
-When onboarding administrators to the tiered access model, there are specific management considerations due to current limitations:
-
-**Temporary RMAU Group Removal Process**
-- During admin onboarding, you must temporarily remove the relevant role group from the Restricted Management Administrative Unit (RMAU)
-- This operation requires Global Administrator privileges as there is no custom role that can safely perform this action
-- A custom role would introduce additional security gaps by requiring a role-enabled group for it, which is not currently possible within the security model
-- Therefore, the temporary removal approach is used to maintain security while enabling onboarding
-
-**Tier-0 Device Management**
-When onboarding a new administrator with Tier-0 roles:
-- The administrator's device ID must be manually added to the Conditional Access Policies with the Device-Filter
-- **Alternative approach**: Deploy a secured jump server solution, such as an Azure Virtual Desktop (AVD) deployment, to provide controlled access without individual device management
-
-**Process Summary**
-1. Temporarily remove the target role group from RMAU (requires Global Admin)
-2. Add the new administrator to the appropriate tier group
-3. For Tier-0: Add device ID to conditional access device filter OR provide access through secured jump server
-4. Re-add the role group to RMAU to restore protection
+*This project was developed with the assistance of generative AI*
