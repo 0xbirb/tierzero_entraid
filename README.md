@@ -16,7 +16,7 @@ This Terraform deployment will create the following resources in your Entra ID t
 
 - **Role-Enabled Security Groups**: For each tier (Tier-0, Tier-1, Tier-2), a security group will be created for each role assigned to that tier
 - **Administrative Units**: Restricted administrative units for each tier to limit scope of access
-- **Conditional Access Policies**: Five policies enforcing PAW requirements and authentication strength
+- **Conditional Access Policies**: Five policies enforcing PAW requirements and authentication strength (created ONLY in Report-Only mode, with break-glass account exclusion support)
 - **Authentication Strength Policies**: Phishing-resistant authentication requirements for privileged tiers
 - **Custom Role Assignments**: Proper role assignments to the security groups for each tier
 
@@ -80,7 +80,8 @@ conditional_access_policy_state = "enabledForReportingButNotEnforced"  # or "ena
 
 # Emergency Break-Glass Accounts (exclude from CA policies)
 conditional_access_emergency_accounts = [
-    "emergency-admin@yourdomain.com"
+    "breakglass1@yourdomain.com",
+    "breakglass2@yourdomain.com"
 ]
 
 # Customize Role Assignments (Override defaults)
