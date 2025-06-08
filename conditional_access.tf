@@ -3,10 +3,7 @@ locals {
   tier0_group_ids = [for group in azuread_group.tier0_role_groups : group.id]
   tier1_group_ids = [for group in azuread_group.tier1_role_groups : group.id]
   tier2_group_ids = [for group in azuread_group.tier2_role_groups : group.id]
-  excluded_users = concat(
-    var.conditional_access_emergency_accounts,
-    [for user in data.azuread_user.emergency_accounts : user.id]
-  )
+  excluded_users = [for user in data.azuread_user.emergency_accounts : user.id]
 }
 
 resource "azuread_conditional_access_policy" "tier0_paw_device_filter" {

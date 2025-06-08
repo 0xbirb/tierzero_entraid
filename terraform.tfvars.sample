@@ -11,11 +11,8 @@ tier0_privileged_access_workstations = [
   "11111111-2222-3333-4444-555555555555"
 ]
 
-# Optional emergency accounts (using Object IDs)
-conditional_access_emergency_accounts = []
-
-# Optional emergency accounts (using UPNs - will be converted to Object IDs)
-conditional_access_emergency_account_upns = [
+# Emergency break-glass accounts
+conditional_access_emergency_accounts = [
   # "breakglass@yourdomain.com"
 ]
 

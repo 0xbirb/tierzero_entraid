@@ -21,7 +21,7 @@ provider "azuread" {
 data "azuread_client_config" "current" {}
 
 data "azuread_user" "emergency_accounts" {
-  for_each = toset(var.conditional_access_emergency_account_upns)
+  for_each = toset(var.conditional_access_emergency_accounts)
   user_principal_name = each.value
 }
 

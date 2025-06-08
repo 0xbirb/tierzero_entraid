@@ -109,12 +109,6 @@ variable "conditional_access_policy_state" {
 }
 
 variable "conditional_access_emergency_accounts" {
-  description = "Emergency break-glass account user IDs to exclude from all CA policies"
-  type        = list(string)
-  default     = []
-}
-
-variable "conditional_access_emergency_account_upns" {
   description = "Emergency break-glass account UPNs to exclude from all CA policies"
   type        = list(string)
   default     = []
