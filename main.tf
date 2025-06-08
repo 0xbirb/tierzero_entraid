@@ -20,6 +20,11 @@ provider "azuread" {
 
 data "azuread_client_config" "current" {}
 
+data "azuread_user" "emergency_accounts" {
+  for_each = toset(var.conditional_access_emergency_account_upns)
+  user_principal_name = each.value
+}
+
 
 
 locals {

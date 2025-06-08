@@ -114,6 +114,12 @@ variable "conditional_access_emergency_accounts" {
   default     = []
 }
 
+variable "conditional_access_emergency_account_upns" {
+  description = "Emergency break-glass account UPNs to exclude from all CA policies"
+  type        = list(string)
+  default     = []
+}
+
 variable "organization_name" {
   description = "Organization name used as prefix for all Azure AD resources (groups, conditional access policies, etc.). This replaces 'MyOrg' throughout the configuration."
   type        = string
