@@ -18,7 +18,6 @@ This Terraform deployment will create the following resources in your Entra ID t
 - **Administrative Units**: Restricted administrative units for each tier to limit scope of access
 - **Conditional Access Policies**: Five policies enforcing PAW requirements and authentication strength (created ONLY in Report-Only mode, with break-glass account exclusion support)
 - **Authentication Strength Policies**: Phishing-resistant authentication requirements for privileged tiers
-- **Custom Role Assignments**: Proper role assignments to the security groups for each tier
 
 ## Features
 

@@ -6,7 +6,7 @@ resource "azuread_group" "tier0_role_groups" {
   security_enabled          = true
   assignable_to_role        = true
   mail_enabled             = false
-  owners                   = []
+  owners                   = [data.azuread_client_config.current.object_id]
 }
 
 resource "azuread_group" "tier1_role_groups" {
@@ -17,7 +17,7 @@ resource "azuread_group" "tier1_role_groups" {
   security_enabled          = true
   assignable_to_role        = true
   mail_enabled             = false
-  owners                   = []
+  owners                   = [data.azuread_client_config.current.object_id]
 }
 
 resource "azuread_group" "tier2_role_groups" {
@@ -28,5 +28,5 @@ resource "azuread_group" "tier2_role_groups" {
   security_enabled          = true
   assignable_to_role        = true
   mail_enabled             = false
-  owners                   = []
+  owners                   = [data.azuread_client_config.current.object_id]
 }

@@ -18,6 +18,8 @@ provider "azuread" {
   client_secret = var.client_secret
 }
 
+data "azuread_client_config" "current" {}
+
 
 
 locals {
