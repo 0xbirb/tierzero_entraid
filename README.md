@@ -36,6 +36,7 @@ This Terraform deployment will create the following resources in your Entra ID t
   - `Device.Read.All` - Validate PAW device IDs (recommended)
   - `Directory.ReadWrite.All` - General directory operations
   - `Group.ReadWrite.All` - Create and manage security groups
+  - `Policy.Read.All` - Read policy configurations
   - `Policy.ReadWrite.AuthenticationMethod` - Manage authentication strength policies
   - `Policy.ReadWrite.ConditionalAccess` - Manage conditional access policies
   - `RoleManagement.ReadWrite.Directory` - Assign directory roles to groups
@@ -110,12 +111,8 @@ tier1_roles = [
 tier2_roles = [
     "Helpdesk Administrator",
     "Password Administrator",
-    "Reports Reader",
-    "Message Center Reader",
     "Directory Readers",
-    "Usage Summary Reports Reader",
     "License Administrator",
-    "Guest Inviter",
     "Groups Administrator"
 ]
 ```
