@@ -131,23 +131,29 @@ To get device IDs for your Privileged Access Workstations:
 
 ## Deployment
 
-1. **Install Terraform** (if not already installed):
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/0xbirb/tierzero_entraid.git
+   cd tierzero_entraid
+   ```
+
+2. **Install Terraform** (if not already installed):
    - Follow the official installation guide for Linux: [Install Terraform on Linux](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
-2. **Create terraform.tfvars file**:
+3. **Create terraform.tfvars file**:
    Create a `terraform.tfvars` file in the project root with your tenant_id, client_id, and client_secret as shown in the Configuration section above.
 
-3. **Initialize Terraform**:
+4. **Initialize Terraform**:
    ```bash
    terraform init
    ```
 
-4. **Plan the deployment**:
+5. **Plan the deployment**:
    ```bash
    terraform plan
    ```
 
-5. **Apply the configuration**:
+6. **Apply the configuration**:
    ```bash
    terraform apply
    ```
