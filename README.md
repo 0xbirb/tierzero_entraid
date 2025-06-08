@@ -4,7 +4,7 @@ A tier zero blueprint for EntraID - automated with Terraform
 
 ## Overview
 
-This Terraform configuration implements a tiered access model for Azure AD (Entra ID) with three security tiers:
+This Terraform configuration implements a tiered access model for Entra ID with three security tiers:
 
 - **Tier-0**: Highest privilege - Identity and security infrastructure control
 - **Tier-1**: Mid-level privilege - Server, application, and cloud service administration
@@ -165,23 +165,13 @@ To get device IDs for your Privileged Access Workstations:
 
 ### Post-Deployment Requirements
 
-**Manual User Assignment Required**
-
-After deploying this Terraform configuration, you must manually:
-
-1. **Assign users to the role-enabled groups** created by this deployment (Tier-0, Tier-1, Tier-2 groups)
-2. **Remove direct role assignments** for administrators who will now receive access through group membership
-3. **This concept only works when granting access via role-enabled groups** - direct role assignments bypass the tiered access controls
-
-The role-enabled groups provide the security boundaries and conditional access enforcement. Direct role assignments will not be subject to the same conditional access policies and administrative unit restrictions.
-
 **Conditional Access Policy Review and Activation**
 
 By default, Conditional Access Policies are created in Report-Only mode (`conditional_access_policy_state = "enabledForReportingButNotEnforced"`). You must:
 
 1. **Monitor and review** the behavior of the CAPs in Report-Only mode to ensure they work as expected
 2. **Test access patterns** for all tier users to identify any issues
-3. **Enable the policies** by changing `conditional_access_policy_state` to `"enabled"` after validation
+3. **Manually enable the policies** in the Azure portal after validation
 
 ### Onboarding Administrators to the Tiering Concept
 
@@ -198,11 +188,6 @@ When onboarding a new administrator with Tier-0 roles:
 - The administrator's device ID must be manually added to the Conditional Access Policies with the Device-Filter
 - **Alternative approach**: Deploy a secured jump server solution, such as an Azure Virtual Desktop (AVD) deployment, to provide controlled access without individual device management
 
-**Process Summary**
-1. Temporarily remove the target role group from RMAU (requires Global Admin)
-2. Add the new administrator to the appropriate tier group
-3. For Tier-0: Add device ID to conditional access device filter OR provide access through secured jump server
-4. Re-add the role group to RMAU to restore protection
 
 ## Security Considerations
 
@@ -225,7 +210,7 @@ When onboarding a new administrator with Tier-0 roles:
 
 1. **PowerShell Script Execution**: Ensure you have the required Microsoft Graph PowerShell modules installed
 2. **Service Principal Permissions**: Verify your service principal has sufficient permissions for all operations
-3. **Device IDs**: Ensure PAW device IDs are valid UUIDs and devices exist in Azure AD
+3. **Device IDs**: Ensure PAW device IDs are valid UUIDs and devices exist in Entra ID
 
 ### Logs
 
