@@ -1,0 +1,19 @@
+# Sample terraform.tfvars - copy and fill in your values
+
+tenant_id     = "12345678-1234-1234-1234-123456789012"
+client_id     = "87654321-4321-4321-4321-210987654321"
+client_secret = "your-service-principal-client-secret-here"
+
+organization_name = "MyOrg"
+
+# REQUIRED: Your PAW device IDs
+tier0_privileged_access_workstations = [
+  "11111111-2222-3333-4444-555555555555"
+]
+
+# Optional emergency accounts
+conditional_access_emergency_accounts = []
+
+enable_authentication_strength_policies = true
+enable_conditional_access_policies      = true
+conditional_access_policy_state         = "enabledForReportingButNotEnforced"

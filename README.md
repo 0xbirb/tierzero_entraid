@@ -39,7 +39,7 @@ This Terraform deployment will create the following resources in your Entra ID t
 
 ### Required Variables
 
-Create a `terraform.tfvars` file with the following required variables:
+Copy `terraform.tfvars.sample` to `terraform.tfvars` and configure the following required variables:
 
 ```hcl
 # Entra ID Service Principal Configuration
@@ -59,7 +59,7 @@ tier0_privileged_access_workstations = [
 
 ### Optional Variables
 
-To customize the deployment beyond the defaults, you must modify the values in `variables.tf` according to your requirements. The following optional variables can be adjusted:
+To customize the deployment beyond the defaults, modify these optional variables in your `terraform.tfvars` file:
 
 ```hcl
 # Enable/Disable Features
@@ -140,8 +140,8 @@ To get device IDs for your Privileged Access Workstations:
 2. **Install Terraform** (if not already installed):
    - Follow the official installation guide for Linux: [Install Terraform on Linux](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
-3. **Create terraform.tfvars file**:
-   Create a `terraform.tfvars` file in the project root with your tenant_id, client_id, and client_secret as shown in the Configuration section above.
+3. **Configure variables**:
+   Copy `terraform.tfvars.sample` to `terraform.tfvars` and fill in your actual values.
 
 4. **Initialize Terraform**:
    ```bash
