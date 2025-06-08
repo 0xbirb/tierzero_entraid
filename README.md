@@ -19,14 +19,6 @@ This Terraform deployment will create the following resources in your Entra ID t
 - **Conditional Access Policies**: Five policies enforcing PAW requirements and authentication strength (created ONLY in Report-Only mode, with break-glass account exclusion support)
 - **Authentication Strength Policies**: Phishing-resistant authentication requirements for privileged tiers
 
-## Features
-
-- Role-based security groups for each tier
-- Conditional Access policies with PAW (Privileged Access Workstation) requirements
-- Authentication strength policies with phishing-resistant authentication
-- Restricted Administrative Units for each tier
-- Automated PowerShell script for administrative unit creation
-
 ## Prerequisites
 
 - Entra ID tenant with Global Administrator permissions
@@ -67,7 +59,7 @@ tier0_privileged_access_workstations = [
 
 ### Optional Variables
 
-You can also customize the following optional variables:
+To customize the deployment beyond the defaults, you must modify the values in `variables.tf` according to your requirements. The following optional variables can be adjusted:
 
 ```hcl
 # Enable/Disable Features
