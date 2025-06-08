@@ -53,7 +53,7 @@ resource "azuread_conditional_access_policy" "tier0_phishing_resistant_auth" {
   conditions {
     users {
       included_groups = local.tier0_group_ids
-      excluded_users  = var.conditional_access_emergency_accounts
+      excluded_users  = local.excluded_users
     }
     applications {
       included_applications = ["All"]
@@ -82,7 +82,7 @@ resource "azuread_conditional_access_policy" "tier1_strong_auth" {
   conditions {
     users {
       included_groups = local.tier1_group_ids
-      excluded_users  = var.conditional_access_emergency_accounts
+      excluded_users  = local.excluded_users
     }
     applications {
       included_applications = ["All"]
@@ -112,7 +112,7 @@ resource "azuread_conditional_access_policy" "tier2_standard_mfa" {
   conditions {
     users {
       included_groups = local.tier2_group_ids
-      excluded_users  = var.conditional_access_emergency_accounts
+      excluded_users  = local.excluded_users
     }
     applications {
       included_applications = ["All"]
