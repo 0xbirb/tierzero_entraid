@@ -295,6 +295,46 @@ function Get-TierGroups {
     }
 }
 
+function Get-PAWDeviceIdsFromTerraform {
+    try {
+        Write-Log "Reading PAW device IDs from terraform.tfvars..."
+        
+        $TerraformVarsPath = $null
+        $SearchPaths = @("./terraform.tfvars", "../terraform.tfvars", "../../terraform.tfvars")
+        
+        foreach ($Path in $SearchPaths) {
+            if (Test-Path $Path) {
+                $TerraformVarsPath = Resolve-Path $Path
+                break
+            }
+        }
+        
+        if (-not $TerraformVarsPath) {
+            Write-Log "terraform.tfvars file not found" -Level "WARNING"
+            return @()
+        }
+        
+        $TerraformContent = Get-Content $TerraformVarsPath -Raw
+        $DevicePattern = 'tier0_privileged_access_workstations\s*=\s*\[([^\]]+)\]'
+        $Match = [regex]::Match($TerraformContent, $DevicePattern, [System.Text.RegularExpressions.RegexOptions]::Multiline)
+        
+        if (-not $Match.Success) {
+            Write-Log "No tier0_privileged_access_workstations found" -Level "WARNING"
+            return @()
+        }
+        
+        $DeviceIdsString = $Match.Groups[1].Value
+        $DeviceIds = [regex]::Matches($DeviceIdsString, '"([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
+        
+        Write-Log "Found $($DeviceIds.Count) PAW device IDs in terraform.tfvars"
+        return $DeviceIds
+    }
+    catch {
+        Write-Log "Failed to retrieve PAW device IDs: $($_.Exception.Message)" -Level "ERROR"
+        return @()
+    }
+}
+
 function Add-GroupToAdministrativeUnit {
     param(
         [Microsoft.Graph.PowerShell.Models.MicrosoftGraphAdministrativeUnit]$AdministrativeUnit,
@@ -328,6 +368,41 @@ function Add-GroupToAdministrativeUnit {
     }
     catch {
         Write-Log "Failed to add group '$($Group.DisplayName)' to AU '$($AdministrativeUnit.DisplayName)': $($_.Exception.Message)" -Level "ERROR"
+        return $false
+    }
+}
+
+function Add-DeviceIdToAdministrativeUnit {
+    param(
+        [Microsoft.Graph.PowerShell.Models.MicrosoftGraphAdministrativeUnit]$AdministrativeUnit,
+        [string]$DeviceId
+    )
+    
+    try {
+        $ExistingMembers = Get-MgDirectoryAdministrativeUnitMember -AdministrativeUnitId $AdministrativeUnit.Id
+        $ExistingMemberIds = $ExistingMembers | ForEach-Object { $_.Id }
+        
+        if ($DeviceId -in $ExistingMemberIds) {
+            Write-Log "Device ID '$DeviceId' is already a member of AU '$($AdministrativeUnit.DisplayName)'"
+            return $true
+        }
+        
+        if ($WhatIf) {
+            Write-Log "[WHATIF] Would add device ID '$DeviceId' to AU '$($AdministrativeUnit.DisplayName)'"
+            return $true
+        }
+        
+        $MemberRef = @{
+            "@odata.id" = "https://graph.microsoft.com/v1.0/devices/$DeviceId"
+        }
+        
+        New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $AdministrativeUnit.Id -BodyParameter $MemberRef
+        Write-Log "Successfully added device ID '$DeviceId' to AU '$($AdministrativeUnit.DisplayName)'"
+        
+        return $true
+    }
+    catch {
+        Write-Log "Failed to add device ID '$DeviceId' to AU '$($AdministrativeUnit.DisplayName)': $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -404,6 +479,9 @@ try {
         throw "Failed to retrieve tier groups"
     }
     
+    # Get PAW device IDs for Tier-0
+    $PAWDeviceIds = Get-PAWDeviceIdsFromTerraform
+    
     # Create each Administrative Unit and populate with groups
     $CreatedAUs = @()
     foreach ($AUDef in $AdminUnits) {
@@ -426,6 +504,14 @@ try {
                 }
             } else {
                 Write-Log "No groups found for $($AUDef.Name)" -Level "WARNING"
+            }
+            
+            # Add PAW devices to Tier-0 AU only
+            if ($AUDef.Name -eq "Tier-0" -and $PAWDeviceIds.Count -gt 0) {
+                Write-Log "Adding $($PAWDeviceIds.Count) PAW devices to $($AUDef.Name)"
+                foreach ($DeviceId in $PAWDeviceIds) {
+                    Add-DeviceIdToAdministrativeUnit -AdministrativeUnit $AU -DeviceId $DeviceId
+                }
             }
         }
     }
